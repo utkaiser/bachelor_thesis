@@ -2,4 +2,4 @@ TODO:
 
 - license (same as in coding bookmark _hunzeil)
 - add readme with english abstract and fancy presentation
-- add gitignore
+- add gitignore.
