@@ -1,0 +1,13 @@
+# Python libraries
+pandas
+matplotlib
+numpy
+yfinance
+scikit-learn == 0.21.0
+jinja2
+gym == 0.15.3
+scipy
+# stable_baselines
+
+# Deep Learning framework
+# tensorflow == 1.15.4

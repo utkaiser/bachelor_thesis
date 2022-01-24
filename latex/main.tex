@@ -1,0 +1,76 @@
+\RequirePackage[l2tabu,orthodox]{nag}
+
+\documentclass[footinclude=false, twoside, fontsize=11pt,paper=a4,listof=totoc,bibliography=totoc]{scrreprt}
+
+\usepackage[left= 3cm, right = 3cm, bottom = 4 cm, top= 4 cm, headsep=1 cm]{geometry}
+
+\input{settings}
+
+\newcommand*{\getUniversity}{Uni Würzburg}
+\newcommand*{\getFaculty}{Lehrstuhl für Informatik X (Data Science Chair)}
+\newcommand*{\getTitleGer}{Evaluation und Erweiterung von Deep Reinforcement Learning Agenten für den algorithmischen Handel}
+\newcommand*{\getTitleEng}{Evaluation and Improvement of Deep Reinforcement Learning Agents for Algorithmic Trading}
+\newcommand*{\getAuthor}{Luis Kaiser}
+\newcommand*{\getDoctype}{Bachelorarbeit}
+\newcommand*{\getSupervisor}{Padraig Davidson (M.Sc.), Julian Tritscher (M.Sc.)}
+\newcommand*{\getAdvisor}{Prof. Dr. Andreas Hotho}
+\newcommand*{\getSubmissionDate}{22.02.2021}
+\newcommand*{\getSubmissionLocation}{Würzburg}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%% begin document %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\tikzset{%
+   neuron missing/.style={
+    draw=none, 
+    scale=2,
+    text height=0.333cm,
+    execute at begin node=\color{black}$\vdots$
+  },
+}
+
+\pagenumbering{roman}
+\pagestyle{empty}
+\input{pages/01_a_Titelseite}
+\newpage
+\newpage\null\thispagestyle{empty}\newpage
+\input{pages/01_b_Titelseite}
+\input{pages/disclaimer}
+\input{pages/abstract}
+\newpage
+\cleardoublepage
+\microtypesetup{protrusion=false}
+
+%Inhaltsverzeichnis
+\tableofcontents
+\newpage
+\listoffigures{}
+\listoftables{}
+%\addcontentsline{toc}{section}{Abkuerzungsverzeichnis}
+\input{data/Abkuerzungen}
+
+\newpage
+\newpage\null\thispagestyle{empty}\newpage
+\microtypesetup{protrusion=true}
+
+\mainmatter{}
+\pagestyle{fancy}
+\pagenumbering{arabic}
+\input{chapters/04_Einleitung}
+\input{chapters/05_Bestehende_Literatur}
+\input{chapters/06_Grundlagen}
+\input{chapters/07_Evaluationsaufbau}
+\input{chapters/09_Erweiterung}
+\input{chapters/08_Ergebnis}
+\input{chapters/11_Fazit}
+\input{chapters/12_Anhang}
+\microtypesetup{protrusion=false}
+\microtypesetup{protrusion=true}
+\printbibliography{}
+
+\end{document}
+

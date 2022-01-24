@@ -1,0 +1,27 @@
+\chapter{Bestehende Literatur}
+\label{ch:bestehende_literatur}
+
+Der Begriff \glqq algorithmischer Handel\grqq{} umfasst diverse Domänen. Dazu gehören unter anderem Sentimentanalysen~\parencite{sentiment}, Hochfrequenzhandel~\parencite{highfrequ} und Risikodiversifikation durch Portfoliooptimierung~\parencite{portfolio}.
+In modernen Studien wird die quantitative Analyse einer einzelnen Zeitreihe am häufigsten diskutiert. Weiterhin zeigen einige Metastudien~\parencite{meta,meta2}, dass \acs{DRL} dabei eine bessere Vorhersagekraft als vergleichbare Methoden besitzt, weshalb diese Ansätze Gegenstand der Arbeit sind.
+
+\parencite{moodywu,moodysaffell} demonstriert erstmals die Vorteile von \acs{RL} gegenüber herkömmlichen stochastischen oder supervised learning Verfahren zur Lösung des Markow-Entscheidungsprozesses (\acs{MDP}).
+Moody et al. \parencite{moodywu,moodysaffell} haben Muster im S\&P 500 Stock Index nachgewiesen, welche von rekurrenten \acs{RL} Algorithmen am besten ausgenutzen werden können. Die Überlegenheit dieser Algorithmen wird am deutlichsten, wenn dem Modell Transaktionskosten hinzugefügt werden, da rekurrente \acs{RL} Ansätze ihre Trainingsfrequenz in diesem Fall am stärksten reduzieren. 
+In diesem Kontext wird auch das Sharpe Ratio eingeführt, welches sich aus dem Verhältnis von Profit zu Risiko ergibt. Wird das Sharpe Ratio optimiert, repräsentiert der Agent die Risikoaversion der meisten Investoren. Die Metrik und der \acs{RL} Ansatz werden seither vorrangig in der Literatur verwendet. 
+
+Erste \acs{DRL} Agenten für den Wertpapierhandel werden in~\parencite{deepQtrader} entwickelt. Der vorgestellte Algorithmus basiert auf q learning und kann rekurrente \acs{RL} Ansätze beim Handeln mit einigen Indices übertreffen. Anstatt den Markt abzubilden, konzentriert sich q learning darauf, den Nutzen der Aktion zu optimieren. Fehler, die das Marktmodell verursacht, können dadurch vermieden werden. Jedoch kann in diesem Setting die Performance für Aktien, Warentermingeschäfte oder Exchange Traded Funds\footnote{Börsengehandelter Indexfonds, der die Wertentwicklung von Aktienlisten abbildet.} (\acs{ETF}) nicht bestimmt werden.
+Ferner vergleicht~\parencite{duel} verschiedene Erweiterungen von \acs{DQL} wie beispielsweise eine Dueling Strategie (cf. \parencites{duelwang}). Unter den Architekturen schneidet der \acs{DQL} vor Double \acs{DQL} und Dueling \acs{DQL} beim Handel mit zehn amerikanischen Aktien am besten ab. Wenngleich die erweiterte Architektur beim Meistern von Spielen bessere Ergebnisse liefert~\parencite{doublebetter}, zeigt sie in diesem \acs{MDP} keine bessere Entscheidungsfähigkeit.
+Allerdings wird eine differenziertere Auswertung, z.B. verschiedener Branchen oder Märkte, nicht durchgeführt. Außerdem weichen die Zeiträume der Aktien stark voneinander ab, weshalb keine konsistente Evaluation möglich ist.
+
+Differenzierter angelegte Evaluationen von \acs{DRL}-Agenten, welche Wertpapiere aus diversen Branchen bzw. Märkten untersuchen, lassen einige Erweiterungen aus, die in dieser Arbeit genauer betrachtet werden.
+Beispielsweise analysiert~\parencite{théate2020application} nur ähnliche Wertpapiere und führt keine Hyperparametersuche durch. 
+Obwohl die Studie die Mängel anderer wissenschaftlicher Evaluationen teilweise berücksichtigt, enthält die Testumgebung zum einen nur Aktien marktführender Unternehmen, unterscheidet nicht zwischen einzelnen Märkten und besitzt keine ETFs oder Warentermingeschäfte.
+Darüber hinaus hat eine fehlende Optimierung der Hyperparameter zur Folge, dass das Modell lediglich mit den vordefinierten Werten am besten abschneidet.
+Ohne eine individuelle Feinabstimmung der Parameter können Performancevergleiche mit anderen \acs{DRL} Varianten in diesem Framework nicht durchgeführt werden.
+Der Datensatz von \parencite{zhang2019deep} begrenzt sich auf sehr liquide Termingeschäfte und bildet Durchschnitte einzelner Branchen, ohne die Ergebnisse genauer zu erläutern. Dabei weist unter verschiedenen \acs{DRL} Ansätzen der \acs{DQL} Algorithmus vor der deep policy gradient und deep deterministic policy gradient (\acs{DDPG}) Methode die beste Performance auf. 
+Während in diesem Evaluationssetting unterschiedliche Klassen an Wertpapieren verglichen werden können, fehlt eine Analyse hinsichtlich Branchen und hinsichtlich diverser Charakteristika in den Kursverläufen.
+Zusätzlich klammern alle Arbeiten Krisenzeiten aus und testen ihre Agenten nur auf Datensätzen mit geringer Volatilität sowie steigenden Kursverläufen. Zuverlässige Aussagen über die tatsächliche Performance der Agenten können daher ebenfalls nicht getroffen werden.
+
+Baily et al.~\parencite{Pseudo-Mathematics} kritisieren die wissenschaftliche Herangehensweise der bestehenden Literatur. 
+Aufgrund der Auswahl zu geringer Stichproben und des fehlenden mathematischen Formalismus sind viele machine learning (\acs{ML}) Modelle im Finanzsektor überangepasst, womit das Scheitern von algorithmischen Hedgefonds erklärt werden kann. Überanpassung, besonders bei Daten mit großem Hintergrundrauschen, führt laut Baily et al. dazu, dass Modelle bei out-of-sample Wertpapieren deutlich schlechter abschneiden.
+
+

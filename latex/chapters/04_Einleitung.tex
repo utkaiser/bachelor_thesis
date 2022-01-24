@@ -1,0 +1,35 @@
+\chapter{Einleitung}
+\label{ch:einleitung}
+
+Jüngste Fortschritte in deep reinforcement learning (\acs{DRL}) durchbrechen vorherrschende Konzepte, indem die Technologie aus vielschichtigen Rohdaten komplexe Muster erkennt, was bereits zu Disruption in diversen Domänen wie dem Meistern komplexer Spiele~\parencite{AlphaGo,antari} führte.
+Diese Erfolge bestärken die Erwartung, dass \acs{DRL} auch bei multi-dimensionalen Problemstellungen wie dem algorithmischen Handel profitabel eingesetzt werden kann und, entgegen vorherrschender Wirtschaftstheoreme, langfristig Gewinne mit geringem Risiko generiert.
+
+Jedoch stellt die Finanzumgebung einige Herausforderungen für den reinforcement learning (\acs{RL}) Entscheidungsprozess dar: Zum einen enthalten die Daten Sprünge, Ausrei\ss{}er und Anomalien, die teilweise nicht auf rationale Zusammenhänge zurückzuführen sind und die Vorhersagbarkeit der Wertentwicklung negativ beeinflussen. Zum anderen ist der Markt nicht vollständig beobachtbar und makroökonomische Ereignisse können Marktcharakteristiken plötzlich verändern, sodass die gelernte Strategie neu angepasst werden muss.
+Stationäre Indikatoren wie der gleitende Durchschnitt unterstützen die \acs{DRL} Agenten nur bedingt, da deren Aussagekraft in Abschwungphasen gering ist. 
+Folglich ist das Ziel moderner Forschung, wiederkehrende Muster direkt aus historischen Kursverläufen eines Wertpapiers gewinnbringend auszunutzen und flexibel auf kontradiktorische Marktprozesse zu reagieren.
+
+\paragraph{Problem.} Während einige Ansätze \parencite{zhang2019deep,moodysaffell,duel} dabei vielversprechende Ergebnisse liefern, gibt es kein etabliertes Setting, um die Agenten detailliert zu evaluieren und langfristige Analysen zu ermöglichen.
+In der Literatur wird hauptsächlich das Design der Agenten diskutiert \parencite{deepQtrader,9040728}, allerdings lassen die Ergebnisse keine konsistente Aussage über die tatsächliche Performance der Implementierungen am Wertpapiermarkt zu.
+Insbesondere verwenden viele Studien \parencite{deepQtrader,huang2018financial,repo1,startrader} zu ähnliche Wertpapiere, da vorwiegend Aktien von marktführenden Unternehmen aus der Technologiebranche analysiert werden.
+Wertpapiere mit anderen Charakteristika werden hingegen au\ss{}er Acht gelassen, weshalb repräsentative Schlussfolgerungen nur eingeschränkt möglich sind.
+Speziell Aktien aus der Technologiebranche wiesen in den letzten Jahren stark steigende Kursverläufe auf, sodass der Handel mit diesen Anlagen oft zwangsläufig zu Gewinnen führt. Dieser Sachverhalt ist für eine realistische Einschätzung der Performance problematisch. 
+Weiterhin variiert die Optimierung der Agenten stark (vgl. \parencite{théate2020application,repo2,huang2018financial}) und die Marktbedingungen sind häufig nicht vergleichbar, da beispielsweise Transaktionskosten \parencite{repo1,deepQtrader} vernachlässigt werden. 
+
+\paragraph{Ziel.} Ein zentraler Punkt des Forschungsinteresses ist deshalb, eine einheitliche Testumgebung für die Evaluation von \acs{DRL}-Agenten zu entwickeln, mit der die Performance der Agenten unter realistischeren Bedingungen zuverlässig bewertet werden kann.
+Mithilfe dieses Frameworks soll nachfolgend evaluiert werden, welche Implementierung sich am besten eignet, um mit Hilfe von \acs{DRL} eine maximale Rendite am Aktienmarkt zu erzielen.
+Diese Arbeit leistet einen ersten Beitrag zur differenzierten Analyse der Performance von \acs{DRL} Algorithmen, indem eine umfassende Testumgebung zur realitätsnahen Evaluation unterschiedlicher Marktgeschehnisse, Wertpapiere und Settings entwickelt wird.
+
+\paragraph{Herangehensweise und Beitrag.} Diese Testumgebung umfasst (i) einen Datensatz mit 70 Wertpapieren aus diversen Sektoren mit differierenden Charakteristika, (ii) Evaluationsmetriken, (iii) einheitliche Marktbedingungen und (iv) explizit die Auswertung von Krisenzeiten. (v) Zusätzlich werden Standards in der Optimierung der Agenten aufgestellt, die unter anderem die Hyperparametersuche, das Training und das Testen spezifizieren.
+Für jedes Wertpapier trainiert und optimiert der Algorithmus seine Hyperparameter neu, um die besten Ergebnisse zu erzielen - wie ein realer Trader seinen Agenten einstellen würde.
+Trainings- und Testzeiträume sind einheitlich und lassen somit Branchen- oder Marktvergleiche zu. Es werden mehrere Jahre getrennt evaluiert, wodurch unterschiedliche Marktsituationen besser untersucht werden können.
+
+Dieses Evaluationssetting wird verwendet, um die Stärken und Schwächen von vier bestehenden \acs{DRL} Implementierungen \parencite{repo1,repo2} differenziert zu analysieren und zu vergleichen.
+Dafür werden die Frameworks um ein umfangreiches Testsetting erweitert und darin mit unterschiedlichen Wertpapieren für mehrere Jahre evaluiert.
+Die ausgewählten Agenten sind \acs{DRL} Varianten, die sich hinsichtlicher ihrer Architektur oder ihrer Eingabedaten um einen Aspekt unterscheiden. Effekte einzelner \acs{DRL} Varianten und Umsetzungen können dadurch vielseitig herausgearbeitet werden. 
+Anschlie\ss{}end wird die Architektur eines Agent so modifiziert, dass Einflüsse weiterer Designänderungen auf die Performance untersucht werden können. Insbesondere erhält der erweiterte Agent zusätzliche Eingabewerte, besitzt zudem einen größeren Aktionsraum und nutzt ferner eine Regularisierungsmethode, mit der die Wahrscheinlichkeit von Überanpassung verringert wird.
+Eine differenzierte Analyse zeigt, dass die rekurrente Variante des deep q learning (\acs{DQL}) Algorithmus mit volatilen Wertpapieren die besten Ergebnisse liefert und die Modifikationen nur in wenigen Fällen die Performance steigern.
+
+Die Bachelorarbeit ist wie folgt gegliedert: Zu Beginn wird eine kurze Übersicht über die verschiedenen Bereiche des algorithmischen Handels und dessen bedeutsame wissenschaftliche Publikationen gegeben. Abschnitt 3 enthält die theoretischen Grundlagen und behandelt formale Aspekte der Testumgebung. 
+Im vierten Abschnitt wird der Datensatz, das Design der Agenten und das Evaluationssetting beschrieben. Die Ergebnisse der Evaluation werden in Abschnitt 5 diskutiert. Abschließend wird in Abschnitt 6 ein Fazit und ein Ausblick über zukünftige Arbeiten gegeben.
+
+

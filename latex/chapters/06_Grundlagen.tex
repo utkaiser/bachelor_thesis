@@ -1,0 +1,165 @@
+\chapter{Grundlagen}
+\label{ch:grundlagen}
+
+Unter mehreren \acs{ML} Ansätzen treibt speziell \acs{DRL} den state-of-the-art im Bereich des algorithmischen Handels voran. Wie in~\parencite{surveyDRL} hervorgehoben, unterliegt \acs{RL} der Einschränkung, dass komplexe Probleme aufgrund fehlender Skalierbarkeit und Rechnerkapazität nicht effizient gelöst werden können. \acs{DRL} überwindet diese Hindernisse, indem es die Entscheidungsfindung von \acs{RL} mit der Fähigkeit von neuronalen Netzen (\acs{NN}), eigenständig einfache Darstellungen vielschichtiger Daten zu ermitteln, verbindet.
+
+Das Schema des \acs{DRL} Prozesses beim algorithmischen Handel ist in Abbildung \ref{fig:drlkernbausteine} veranschaulicht.
+Es besteht aus einem Agenten, der in Form von Sequenzen aus Zustand $s$, Aktion $a$ und Belohnung $r$ mit der Finanzumgebung interagiert.
+Der Agent enthält ein \acs{NN}, durch das profitable Strategien $\pi(s,a,\theta)$ direkt aus multi-dimensionalen Rohdaten effizient erlernt werden können.
+\acs{NN}e (cf. \parencite{10.5555/1671238}) bestehen aus einer Eingabe- und Ausgabeschicht sowie einer oder mehreren verdeckten Schichten. Jede Schicht enthält künstliche Neuronen, die über gewichtete Kanten, parametrisiert durch $\theta$, mit Neuronen aus anderen Schichten verbunden sind. 
+Im Rahmen dieser Arbeit werden \acs{NN}e mit Varianten des q learning Algorithmus trainiert, wobei der Adam Optimierer zur Aktualisierung der Gewichte $\theta$ verwendet wird.
+Die meisten unten stehenden Formeln sind aus \parencites{antari,lample2018playing} entnommen.
+
+\begin{figure}[!ht]
+\begin{tikzpicture}[x=1.5cm, y=1cm,
+>=stealth,font=\sffamily,nodes={align=center}]
+ \begin{scope}[local bounding box=T]%[scale=0.7,transform shape]
+  \path  node[draw,minimum width=5em,minimum height=3em] (state) {Zustand};
+  \begin{scope}[local bounding box=NN]
+   \DrawNeuronalNetwork{~/5/green/4///,
+     ~/5/blue/4//11/,
+     ~/4/red/3//11/}
+  \end{scope}
+  \path (NN.south) node[below=1em]{\small{geschätzte Gewichte~$\theta=w_{ij}$ des neuronalen Netzes}};
+  \path (NN.north) node[below]{\small{Eingabeschicht~~~~~verdeckte Schicht~~~~~Ausgabeschicht}};
+  \path(NN.east) node[right]{~~~\small{Strategie}\\~~~\small{$\pi(s,a,\theta)$}}++ (4em,0);
+ \end{scope} 
+ \node[fit=(T),label={[anchor=north west]north west:Agent},inner sep=1em,draw]
+  (TF){};
+ \node[below=3em of TF,draw,inner sep=1em] (Env) {Finanzumgebung};
+ \draw[<-] (TF.175) -- ++ (-2em,0) |- (Env.180) node[pos=0.45,right]{\small{Zustand $s$}\\\small{Belohnung $r$}~~~~};
+ \draw[->] (TF.5) -- ++ (2em,0) |- (Env.0) node[pos=0.45,left]{\small{Aktion $a$}};
+\end{tikzpicture}
+\vspace{4mm}
+\caption[Kernbausteine des \acs{DRL} Algorithmus]%
+{Kernbausteine des \acs{DRL} Algorithmus. Angelehnt an \parencite{drawing}. In diesem Fall besteht das \acs{NN} neben einer Eingabe- und Ausgabeschicht aus einer verdeckten Schicht, zwischen denen sich das Signal vorwärts gerichtet bewegt. In jedem Neuron wird der Eingabevektor mit Gewichten $w_{ij}$ multipliziert, mit dem Verzerrungswert verrechnet und einer nicht-linearen Aktivierungsfunktion übergeben. Das Ergebnis wird zur nächsten Schicht weitergeleitet oder ausgegeben.
+Verwendete Abwandlungen werden in Abschnitt \ref{sec:varianten} vorgestellt.}
+\label{fig:drlkernbausteine}
+\end{figure}
+
+\section{Formalisierung des Markow-Entscheidungsproblems}
+\label{sec:formalisierung}
+
+\acs{RL} erlaubt \acs{NN}en sequentielle Entscheidungsprobleme durch die Ausführung von Aktionen in einer teilweise beobachtbaren Umgebung zu lösen.
+Formal befindet sich der Agent beim algorithmischen Handel in einem \acs{MDP}, der die Entscheidung des \acs{RL} Algorithmus modelliert. Dessen Kernbausteine können für jeden Zeitschritt t folgendermaßen definiert werden:
+\paragraph*{Zustand.}
+\label{par:zustand}
+Der Agent erzeugt eine Abstraktion der Finanzumgebung, bezeichnet als Zustand $s\in\mathcal{S}_t$, wobei $\mathcal{S}_t$ die Potenzmenge aller beobachtbaren Informationen zum Zeitschritt t darstellt und als Zustandsraum bezeichnet wird. 
+Neben historischen Kursverläufen des gehandelten Wertpapiers können beispielsweise weitere, korrelierende Wertpapierdaten unterstützen, qualitative bzw. quantitative Ursachen für Marktveränderungen miteinzubeziehen.
+Die Herausforderung besteht darin, aus der multi-dimensionalen Finanzumgebung nützliche Informationen so zu abstrahieren, dass damit maximale Gewinne erzielt werden.
+\paragraph*{Aktion.}
+\label{par:action}
+Basierend auf einer Strategie $\pi$ wählt der Agent unter dem Zustand $s$ eine Aktion $a$, kurz $a:\mathcal{S}_t\to\mathcal{A}_t$. Der Aktionsraum $\mathcal{A}_t$ ist diskret, abhängig vom Portfolio und umfasst den Kauf bzw. Verkauf einer oder mehrerer Wertpapiere zum Zeitschritt t.
+Der Aktionsraum der ausgewählten Modelle beschränkt sich auf $a\in\{-1, 0, 1\}=\{$verkaufen, halten, kaufen$\}$, wobei Leerverkäufe nicht möglich sind und für $a\neq0$ Transaktionskosten anfallen. 
+\paragraph*{Belohnung.}
+\label{par:belohnung}
+Nach der Ausführung der Aktion $a$ erhält der Agent für den Übergang von Zustand $s$ zu Zustand $s^\prime$ eine Belohnung 
+$r:\mathcal{S}_t\times\mathcal{A}_t\times\mathcal{S}_t\to\mathbb{R}$.
+Diese Belohnungsfunktion spezifiziert das Lernziel des Agenten. Für das algorithmische Handelsproblem ist der tägliche Ertrag des Portfolios, wie in \parencite{zhang2019deep,théate2020application} beschrieben, die einfachste und profitabelste Strategie und wird daher als Belohnung in der Evaluation verwendet.
+Weitere Metriken folgen in Abschnitt \ref{sec:metrik}.
+Das Portfolio eines Agenten besteht aus dem Gesamtwert der gehaltenen Wertpapiere und Bargeld. 
+Zu Beginn besitzt der Agent einen fixen Betrag an Bargeld, mit dem er jeden Tag ein Wertpapier gemäß dem definierten Aktionsraum handeln kann.
+
+Das Ziel von \acs{RL} ist, eine optimale Strategie $\pi^\ast$ zu finden, die für jeden Zeitschritt t den erwarteten diskontierten, kumulativen Gewinn $R_t = \sum_{t^\prime=t}^T \gamma^{t^\prime-t} r_{t^\prime}$, maximiert, wobei T den letzten betrachteten Zeitschritt darstellt. Der Diskontierungsfaktor $\gamma\in[0,1]$ gewichtet zukünftige Gewinne; je größer der Diskontierungsfaktor ($\gamma\to1$), desto wichtiger sind spätere Ereignisse für die aktuelle Aktion.
+
+\section{Deep q learning}
+\label{sec:grundlagendql}
+
+Die Grundidee hinter q learning ist, die optimale Strategie $\pi^\ast$ durch eine Funktion $Q^\ast(s^\prime,a^\prime)$ abzuschätzen, die den erwarteten Gewinn einer Aktion $a$ in einem Zustand $s$ optimiert. Die optimale $Q$-Funktion erfüllt das \glqq Optimalitätsprinzip von Bellman\grqq, Gleichung \ref{bellmann}, welche den erwarteten Wert von $r + \gamma Q^\ast(s^\prime,a^\prime)$ unter Auswahl der optimalen Aktion maximiert,
+\begin{align}\label{bellmann}
+Q^\ast(s,a) &= \max_\pi\E[R_t\mid s_t=s,a_t=a,\pi] \nonumber\\
+&= \E[r+\gamma\max_{a^\prime}Q^\ast(s^\prime,a^\prime)\mid s,a]\textnormal{.}
+\end{align}
+Im Falle von \acs{DQL} approximieren die Gewichte $\theta$ eines \acs{NN}es die optimale $Q$-Funktion $Q(s,a,\theta)\approx Q^\ast(s,a)$.
+Indem die Bellmann Gleichung auf eine Sequenz aus Verlustfunktionen $L_i(\theta_i)$, genauer die Differenz der linken und rechten Seite der Gleichung \ref{bellmann}, für jede Iteration i angewendet wird, kann ein \acs{DQL} Algorithmus trainiert werden,
+\begin{align}
+	L_i(\theta _i)=\E _{s,a,r,s^\prime\sim\rho(\cdot)}[(y_i - Q(s,a,\theta _i))^2]\textnormal{,}
+\end{align}
+wobei \(y_i=\E[r+\gamma\max_{a^\prime}Q(s^\prime,a^\prime,\theta _{i-1})\mids,a]\) die Vorhersage für Iteration i mit den Gewichten der vorherigen Iteration $\theta_{i-1}$ ist.
+$\rho(s,a)$ stellt die Wahrscheinlichkeitsverteilung von Sequenzen ($s,a,r,s^\prime$) dar, die in der Praxis häufig mit Hilfe einer $\epsilon$-greedy Strategie berechnet wird. Bei dieser Strategie wählt der Agent mit der Wahrscheinlichkeit $\epsilon$ zufällig eine Aktion aus, wohingegen mit der Wahrscheinlichkeit $1-\epsilon$ die optimale Aktion entsprechend dem \acs{DQL} Verfahren ausgesucht wird. Für eine bessere Konvergenz startet $\epsilon$ gewöhnlich bei 1 und nimmt negativ exponentiell mit einem Faktor, referenziert als epsilon decay, ab.
+
+Die Verlustfunktion wird durch den Gradienten bzgl. $\theta$,
+\begin{align}
+	\nabla_{\theta_i}L_i(\theta_i)=\E _{s,a\sim\rho(\cdot)}[(y_i - Q(s,a;\theta_i))\nabla_{\theta_i}Q(s,a,\theta_i)]\textnormal{,}
+\end{align}
+minimiert.
+Durch die Approximation $\nabla_{\theta_i}L_i(\theta_i)\approx (y_i - Q(s, a,\theta_i))\nabla_{\theta_i}Q(s, a,\theta_i))$ lässt sich die optimale Verlustfunktion mit einem numerischen Verfahren \parencite{hahn}, z.B. dem Gradientenverfahren, effizient annähern:
+\begin{align}
+\label{gradientenverfahren}
+	\theta_{i+1} = \theta_i+\alpha(y_i - Q(s, a,\theta_i))\nabla_{\theta_i}Q(s, a,\theta_i))
+	\textnormal{.}
+\end{align}
+Die Lernrate $\alpha$ definiert wie stark die Anpassung der Gewichte des Agenten für jeden Zeitschritt sind. Eine hohe Lernrate beschleunigt den Lernprozess, kann aber zu einer suboptimalen finalen Einstellung der Gewichte oder Divergenz führen, da Minima leicht übersprungen werden.
+Mit Hilfe des Backpropagations-Algorithmus wird das Ausmaß des Fehlers jedes Neurons $\Delta w_{ij}=-\alpha\frac{\partial L}{\partial w_{ij}}$ berechnet und der Fehler von einer Schicht zur nächsten rückwärts weitergeleitet.
+Anschließend werden die Gewichte aktualisiert, sodass sich der Algorithmus iterativ einem lokalen Minimum des Fehlers nähert.
+Der Adam Optimierer ist eine Erweiterung des Gradientenverfahrens, der sich bei diversen Anwendungen als vorteilhaft erwiesen hat~\parencite{kingma2017adam}.
+
+\begin{algorithm}[b!]
+\caption{Deep q learning Algorithmus mit Wiedergabespeicher (aus \parencite{antari})}\label{dql}
+\begin{algorithmic}[t!]
+      \State \text{Initialisiere den Wiedergabespeicher }$M$\text{ mit Größe }$m$\text{.}
+      \State \text{Initialisiere die $Q$-Funktion mit Ausgangsgewichten }$\theta$\text{.}
+      \For{epsiode=1 to $E$}
+      	\State \text{Abstrahiere den initialen Zustand }$s$\text{ der Umgebung und verarbeite ihn $\phi=\phi(s)$.}
+		\For{t=1 to T}
+			\State \text{Wähle mit Wahrscheinlichkeit }$\epsilon$\text{ eine zufällige Aktion }$a\in\mathcal{A}_t$\text{,}
+			\State \text{oder wähle }$a = \max_{a\in\mathcal{A}_t}Q(\phi(s),a,\theta_t)$\text{.}
+			\State \text{Führe die Aktion }$a_t$\text{ aus; erhalte einen neuen Zustand }$s^\prime$\text{ und eine Belohnung }$r$\text{.}
+			\State \text{Speichere die Sequenz (}$\phi(s)$,$a$,$r$,$\phi(s^\prime)$\text{) in }$M$\text{.}
+			\State \text{Überschreibe den ältesten Eintrag, falls }$\vert M \vert>m$\text{.}
+			\State \text{Wähle eine zufällige Untermenge }$N \subset M$\text{ aus Sequenzen (}$\phi(s),a,r,\phi(s^\prime)$\text{).}
+			\State \text{Setze }
+			$y_i=$
+			\begin{cases} 
+				r_i, & \text{falls }t+1=T\\ r_i+\gamma\max_{a^\prime}Q(\phi(s^\prime),a^\prime,\theta_t), & \text{sonst.}
+			\end{cases}
+    		\State \text{Wende ein numerisches Verfahren, z.B. Gl. \ref{gradientenverfahren}, auf }$(y_i - Q(\phi(s),a,\theta_t))^2$\text{ an.}
+    		\State \text{Setze }$s=s^\prime$\text{.}
+    	\EndFor
+      \EndFor
+\end{algorithmic}
+\end{algorithm}
+
+Um Korrelationen bei aufeinanderfolgenden Stichproben zu vermeiden, werden bei jedem Zeitschritt t die Erfahrungen des Agenten ($s, a, r, s^\prime$) in einem Wiedergabespeicher gesammelt \parencite{Lin1992ReinforcementLF}, aus dem zufällig Untermengen zur Anpassung der Gewichte ausgewählt werden. 
+Der vollständige Algorithmus mit Wiedergabespeicher ist in Algorithmus \ref{dql} abgebildet (vgl. \parencite{antari}) und wird im Folgenden als \acs{DQL} bezeichnet.
+
+\section{Varianten von deep q learning}
+\label{sec:varianten}
+
+Die in dieser Arbeit vorgestellten Anwendungen verwenden eine Reihe an \acs{DRL} Architekturen, insbesondere rekurrente \acs{NN} (\acs{RNN}), Duel \acs{DQL} (\acs{DDQL}) sowie einen \acs{DDPG}, die unten stehend näher erläutert werden.
+
+\subsection{Deep recurrent q learning}
+\label{subsec:ddrqltheorie}
+
+Seit einigen Jahren haben sich \acs{RNN} mit Long Short-Term Memory (\acs{LSTM}) \parencite{hochre} zum vorherrschenden Lernmodell für sequentielle Daten in Bereichen wie der Übersetzung \parencite{luong2015addressing, Guo_Zhou_Li_Wang_2018} oder der Sprachmodellierung \parencite{sprachmodellierung,merity2017regularizing} entwickelt.
+In \parencite{DBLP:journals/corr/HausknechtS15} führen Hausknecht und Stone den deep recurrent q learning Algorithmus mit der Intention ein, Agenten in teilweise beobachtbaren Umgebungen bessere Entscheidungen treffen zu lassen. Die Finanzbranche, bei der Millionen von individuellen Privatanlegern, Institutionen und Algorithmen gleichzeitig interagieren, zählt unter anderem zu dieser Kategorie.
+Indem der verdeckte Zustand des Agenten $h_{t-1}$ dem $Q$-Wert übergeben wird ($Q(s,h_{t-1},a,\theta)$), können vergangene Daten den Lernprozess langfristiger beeinflussen und so der unvollständigen Wahrnehmung des Agenten entgegenwirken.
+
+Konkret wird die \acs{DQL} Architektur rekurrent, indem Neuronen aus verdeckten Schichten mit \acs{LSTM} Zellen ersetzt werden. 
+Im Vergleich zu vorwärtsgerichteten \acs{NN}, wie in Abbildung \ref{fig:drlkernbausteine}, besteht diese \acs{LSTM} Schicht aus rekurrenten Unternetzen, in denen Informationen von Signalen enthalten sind, welche bereits die Schicht durchquerten.
+Gewöhnliche \acs{RNN} unterliegen dem \glqq Problem des verschwindenden Gradienten\grqq~\parencite{Hochreiter:01book}.
+Der Einfluss früherer Eingaben auf die verdeckte Schicht nimmt bei einfachen \acs{RNN} schnell ab, während \acs{LSTM} Schichten wiederkehrende Muster im Kursverlauf eines Wertpapiers besser speichern und abrufen können.
+Beim algorithmischen Handel haben \acs{LSTM} Schichten somit die überlegene Fähigkeit, Sequenzinformationen über die Zeit zu erhalten und einen langfristigeren Lernhorizont zu ermöglichen.
+
+\subsection{Duel deep q learning}
+\label{subsec:duel}
+
+Die Dueling Strategie wird von Wang et al. \parencite{duelwang} eingeführt.
+Die Architektur trennt explizit die Repräsentation des Zustandes $V(s,\theta)=\E_{a\sim\pi(s)}(Q(s,a,\theta))$ vom zustandsabhängigen Aktionsvorteil $A(s,a,\theta)=Q(s,a,\theta)-V(s,a,\theta)$.
+Diese Architektur berücksichtigt, dass bei manchen Entscheidungsproblemen nicht der Q-Wert jeder Aktion für jeden Zeitschritt t relevant ist.
+Indem man die zwei Schätzer durch eine Abspaltung im \acs{NN} voneinander trennt, kann der dueling Ansatz lernen, welche Zustände wichtig sind (bzw. welche nicht), ohne den Effekt jeder Aktion für jeden Zustand zu lernen. 
+
+Die beiden Pfade ergeben den finalen Q-Wert gemäß der Definition des Aktionsvorteils $Q(s,a,\theta,\alpha,\beta)=V(s,\theta,\beta)+A(s,a,\theta,\alpha)$, wobei $\alpha$ und $\beta$ die Parameter der getrennten Schichten darstellen. Da sich bei gegebenem $Q$-Wert $V$ und $A$ nicht bestimmen lassen, wird in der Praxis häufig der Aktionsvorteil umgeschrieben, 
+\begin{align}
+	Q(s,a,\theta,\alpha,\beta)=V(s,\theta,\beta)+[A(s,a,\theta,\alpha)-\frac{1}{|A|}\sum_{a^\prime}A(s,a^\prime,\theta,\alpha)]\textnormal{.}
+\end{align}
+Für den algorithmischen Handel ist dieser Ansatz interessant, da Aktionen nur marginalen Einfluss auf die Finanzumgebung haben.
+
+\subsection{Deep Deterministic Policy Gradient}
+\label{subsec:ddpg}
+
+\parencite{lillicrap2019continuous} präsentiert erstmals den \acs{DDPG} Algorithmus, der den actor-critic Algorithmus, eine Variante von \acs{RL}, mit \acs{NN}en verbindet.
+Das am häufigsten verwendete Actor-Critic Modell wurde ursprünglich von Konda und Tsitsiklis \parencite{konda} beschrieben und enthält zwei Systeme: Basierend auf einer Strategie führt der Akteur Aktionen aus, während der Kritiker die Entscheidung bzgl. des vorliegenden Zustandes in Form einer Wertefunktion, z.B. der $Q$-Funktion, bewertet. 
+Im Fall von \acs{DDPG} werden der Akteur und der Kritiker jeweils unter Verwendung eines \acs{NN}es modelliert, das die Aktionswahrscheinlichkeiten bzw. den Kritikerwert erzeugt.
+Für eine bessere Stabilität im Training enthält das Modell zeitverzögerte Kopien des Akteur- und Kritiker-Netzwerks, die langsam die gelernten Netzwerke nachverfolgen. Die Gewichte dieser Netzwerke werden iterativ angepasst, $\theta^\prime=\tau\theta+(1-\tau)\theta^\prime$ mit $\tau<1$.
+Anpassungen basieren auf der Fehlerapproximation des Kritikers, die zum einen zur Aktualisierung der $Q$-Funktion durch das Optimalitätsprinzip von Bellmann (Gl. \ref{bellmann}) verwendet werden. Zum anderen wird die Information zum Akteur gesendet, um die Strategie $\pi(s,\theta)$ mit einem numerischen Verfahren gemäß $\max_\theta\E_{s\sim\rho}[Q(s,\pi(s,\theta),\theta_Q)]$ zu optimieren.

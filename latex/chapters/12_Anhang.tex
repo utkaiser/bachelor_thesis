@@ -1,0 +1,54 @@
+\chapter*{Anhang}
+\addcontentsline{toc}{chapter}{Anhang}
+\label{ch:anhang}
+\vspace{-5mm}
+\section*{Tabelle A1: Liste der Agenten}
+\label{tabe1}
+
+Zu sehen ist eine vollständige Liste aller fünfzehn verwendeter \acs{DRL} Varianten und der zwei Baselines. Die ersten vier Varianten werden näher untersucht.
+Die Agenten sind entsprechend ihrer Performance in der Vorstudie sortiert. Deep curiosity q learning und verschiedene Modifikationen davon verwenden einen weiteren \acs{DRL} Algorithmus, der unter anderem in \parencite{10.5555/1671238} näher erläutert wird. Aufgrund der schlechteren Performance in der Vorstudie im Vergleich zu anderen Implementierungen wird auf diese Varianten daher nicht näher eingegangen. Außerdem erweist sich die Double Strategie (cf. \parencite{vanhas}) als nicht Vorteil für den algorithmischen Handel in diesem Setting.
+\vspace{1mm}
+\begin{table}[h!]
+\label{fig:table1h}
+\begin{adjustwidth}{-.8in}{0in}
+  \begin{center}
+  \hline
+  \vspace{5}
+	\begin{tabular}{l}
+	duel deep recurrent q learning\\
+	deep q learning\\
+	deep deterministic policy gradient\\
+	deep deterministic policy gradient mit Kontextdaten\\
+	\vspace{-2mm}\\
+	deep recurrent q learning\\
+	double duel deep recurrent q learning\\
+	deep recurrent deterministic policy gradient\\
+	double deep recurrent q learning\\
+	duel deep q learning\\
+	duel deep recurrent deterministic policy gradient\\
+	double duel deep q learning\\
+	deep recurrent curiosity q learning\\
+	duel deep curiosity q learning\\
+	double deep q learning\\
+	duel deep deterministic policy gradient\\
+	deep curiosity q learning\\
+	turtle trading\\
+	moving average
+	  \vspace{8}
+    \end{tabular}
+    \hline
+    \vspace{10}
+  \end{center}
+  \end{adjustwidth}
+\end{table}
+\vspace{-3mm}
+\section*{Tabelle A2: Datensatz}
+\label{tabe2}
+\addcontentsline{lot}{table}{A1~~~Vollständige Liste aller \acs{DRL} Varianten}
+
+Der nachstehende Datensatz umfasst alle Wertpapiere für die Vorstudie (grau hinterlegt), die Hauptevaluation und des Krisenjahres (unterstrichen). Weiterhin sind Kontextdaten enthalten, die dem \acs{DDPGAK} und dem \acs{EDQLA} zusätzlich übergeben werden.
+Die Wertpapiere werden zur besseren Übersicht in Wertpapierklassen und Börsen unterteilt. Absätze gruppieren die Wertpapiere hinsichtlich des Sektors, der Unternehmensgröße und der Region. Hinter den geschweiften Klammern steht der weitere Vertreter des Sektors, dessen Wertentwicklung beim Handel mit Wertpapieren dieses Sektors zusätzlich in den Kontextdaten enthalten sind.
+\enlargethispage{2\baselineskip}
+\vspace*{-4mm}%
+\input{data/allassets2}
+\addcontentsline{lot}{table}{A2~~~Übersicht über alle verwendeten Wertpapiere}

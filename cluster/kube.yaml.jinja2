@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: {{ job_name }}-
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      priorityClassName: research-med
+      containers:
+        - name: single-asset-trading-agent
+          image: ls6-stud-registry.informatik.uni-wuerzburg.de/studkaiserl/bachelorthesis-studkaiserl:0.0.4
+          imagePullPolicy: "Always"
+          env:
+            - name: DATADIR
+              value: "/home/stud/kaiserl/bachelor_thesis/data/trivago/dataset"
+            - name: OUTPUTDIR
+              value: "/home/stud/kaiserl/bachelor_thesis/results"
+            - name: LOGDIR
+              value: "$(OUTPUTDIR)/logging/{{ log_dir }}"
+          resources:  # set both limits & requests! (can be equal)
+            limits:  # maximum resources you're allowed to use before kubernetes shuts your pod down
+              cpu: "{{ max_cpu }}"
+              memory: "{{ max_memory }}Gi"
+            requests:  # resources you request
+              cpu: "{{ min_cpu }}"
+              memory: "{{ min_memory }}Gi"
+          volumeMounts:
+            - mountPath: "/home/stud/kaiserl/bachelor_thesis" # directory IN the container
+              name: home # matches volume-name from below
+          command: ["python3", "{{ script_path }}"]
+          args: [{{ args_str }}]
+      securityContext:
+        runAsUser: 1230  # your own userid (4 digit number)
+        fsGroup: 1002  # just copy
+      imagePullSecrets:
+        - name: lsx-registry
+      restartPolicy: "Never"
+      volumes:
+        - name: home  # mount your home
+          cephfs:
+            monitors:
+              - 132.187.14.16,132.187.14.17,132.187.14.19,132.187.14.20
+            user: studkaiserl
+            path: "/home/stud/kaiserl/bachelor_thesis"
+            secretRef:
+              name: ceph-secret
+  # some potentially interesting params (can be left out):
+  backoffLimit: 3  # amount of restarts after failure
+  completions: 1  # amount of completions
+  parallelism: 1  # amount of jobs scheduled in parallel

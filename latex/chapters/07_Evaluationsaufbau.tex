@@ -1,0 +1,286 @@
+\chapter{Evaluationsaufbau}
+\label{ch:evaluationsaufbau}
+
+Der Fokus dieser Arbeit ist, eine ausführliche Testumgebung zu entwickeln, mit der verschiedene \acs{DRL} Varianten empirisch verglichen werden können. Aus diesem Grund sind die Experimente so entworfen, dass der Aufbau simpel, die Durchführung realitätsnah und Vergleiche fair sind.
+Ein zentraler Aspekt der Testumgebung ist der differenzierte Datensatz, der Wertpapiere in diverse Sektoren klassifiziert, um domänenübergreifende Eigenschaften zu analysieren.
+Für eine faire Evaluation muss weiterhin die Konfiguration der einzelnen \acs{DRL} Varianten ähnlich sein, da unterschiedliche Varianten unterschiedliche Voreinstellungen benötigen. Aus diesem Grund werden Einstellungen wie Lernrate oder Schichtgröße individuell für jeden Agenten und jedes Wertpapier eingestellt. 
+Diese Einstellungen werden vor dem Training des Algorithmus festgelegt, kontrollieren den Lernprozess und werden als Hyperparameter bezeichnet.
+Zur Vereinfachung beschränkt sich diese Arbeit auf eine Rastersuche. Dabei werden aus einer Menge an Kandidaten alle möglichen Kombinationen für jede Variante manuell evaluiert und die profitabelste Hyperparameterkombination ausgewählt.
+
+Jeder untersuchter Agent der beiden Projektarchive \parencite{repo1,repo2} ergänzt, entfernt oder modifiziert eine Variante aus Abschnitt \ref{sec:varianten} um einen Aspekt, sodass dessen Effekt isoliert betrachtet werden kann.
+Um genauere Schlussfolgerungen aus der Evaluation zu ziehen, fungiert eine Voranalyse (Experiment 1) dazu, den Hyperparameterraum einzugrenzen und die besten vier \acs{DRL} Varianten für eine detaillierte Evaluation auszuwählen.
+Die ausgewählten Agenten werden anschließend um das realitätsnahe Testsetting erweitert und in die entwickelte Testumgebung eingefügt. 
+In der umfassenden Analyse werden drei Experimente durchgeführt, mit denen die Performance in Bezug auf viele unterschiedliche Wertpapiere in mehreren Jahren (Experiment 2), Krisenzeiten (Experiment 3) und einiger Modifikationen (Experiment 4) gesondert getestet werden kann.
+Dadurch wird die Gefahr von Überanpassung reduziert und Unterschiede in makroökonomischen Umständen besser ausgeglichen, als wenn alle Agenten nur in einem einzigen Jahr getestet werden.
+
+\section{Datensatz}
+\label{sec:datensatz}
+
+Alle Daten werden von Yahoo Finance bezogen und in keiner Weise bereinigt bzw. modifiziert.
+Diese Vorverarbeitung ist Standard im algorithmischen Handel und wird daher für eine bessere Vergleichbarkeit mit anderen \acs{DQL} Agenten ausgewählt (z.B. \parencite{théate2020application,zhang2019deep}).
+Die Aufteilungen des Datensatzes werden in Abbildung \ref{fig:timesplit} illustriert.
+Mit Experiment 2 werden auf der einen Seite Performanceunterschiede auf einzelne Charakteristika der Wertpapiere zurückgeführt.
+Andererseits werden verschiedene \acs{DRL} Varianten realitätsnah verglichen, um die Performance hinsichtlich unterschiedlicher Wertpapierklassen bzw. -sektoren differenziert einzuschätzen.
+Experiment 3 dient zur Sondierung der Performance der Agenten während der COVID-19 Krise, sodass die Anwendung bei volatile Marktphasen getestet werden kann.
+In Experiment 4 werden zwei modifizierte Agenten mit denselben drei Zeiträumen getestet, um den Effekt zusätzlicher Marktinformationen, der Regularisierungsmethode Dropout und eines erweiterten Aktionsraums auf die Entscheidungsfindung zu untersuchen.
+
+\begin{figure}[t!]
+  \begin{tikzpicture}
+  \draw [thick, ->] (-6.1,-1.65) -- (-6.1,2.4);
+  \draw [thick, ->] (-6.1,-1.65) -- (7.5,-1.65);
+  \node [above] at (-6.5,2.4) {\footnotesize{Experiment}};
+  \node [below] at (7.2,-1.8) {\footnotesize{~~Zeit}};
+    \matrix (M) [
+        matrix of nodes,
+        nodes={
+           minimum height = 4mm,
+           minimum width = 1.14cm,
+           outer sep=0,
+           anchor=west,
+           draw,fill=white
+        },
+        column 1/.style={
+            nodes={draw=none,fill=none}, 
+            minimum width = 4cm
+        },
+        row sep=5mm, column sep=-\pgflinewidth,
+        nodes in empty cells,
+        e/.style={fill=black!90},
+        t/.style={fill=blue!50},
+        v/.style={fill=yellow!100}
+      ]
+      {
+        \footnotesize{1/2a~~~~~~} & |[t]| & |[t]| & |[t]| & |[t]| & |[t]| & |[t]| & |[t]| & |[v]| & |[e]| & & \\
+        \footnotesize{~2b~~~~~} & |[t]| & |[t]| & |[t]| & |[t]| & |[t]| & |[t]| & |[t]| & |[t]| & |[v]| & |[e]| & \\
+        \footnotesize{~3~~~~~} & |[t]| & |[t]| & |[t]| & |[t]| & |[t]| & |[t]| & |[t]| & |[t]| & |[t]| & |[v]| & |[e]| \\
+      };
+      \draw (M-1-2.north west) ++(0,2mm) coordinate (LT) edge[|<->|, >= latex] node[above]{\footnotesize{Training}} (LT-|M-1-8.north east);
+       \draw (M-1-9.north west) ++(0,2mm) coordinate (LT) edge[|<->|, >= latex] node[above]{\footnotesize{Validation}} (LT-|M-1-9.north east);
+       \draw (M-1-10.north west) ++(0,2mm) coordinate (LT) edge[|<->|, >= latex] node[above]{\footnotesize{Test}} (LT-|M-1-10.north east);
+
+      % dots
+      \node [below=16pt] at (M-3-2.south) {\footnotesize{2010}};
+      \node [below=16pt] at (M-3-3.south) {\footnotesize{2011}};
+      \node [below=16pt] at (M-3-4.south) {\footnotesize{2012}};
+      \node [below=16pt] at (M-3-5.south) {\footnotesize{2013}};
+      \node [below=16pt] at (M-3-6.south) {\footnotesize{2014}};
+      \node [below=16pt] at (M-3-7.south) {\footnotesize{2015}};
+      \node [below=16pt] at (M-3-8.south) {\footnotesize{2016}};
+      \node [below=16pt] at (M-3-9.south) {\footnotesize{2017}};
+      \node [below=16pt] at (M-3-10.south) {\footnotesize{2018}};
+      \node [below=16pt] at (M-3-11.south) {\footnotesize{2019}};
+      \node [below=16pt] at (M-3-12.south) {\footnotesize{2020}};
+  \end{tikzpicture}
+  \vspace{0.5mm}
+  \caption[Aufteilung der Zeitreihe]%
+{Aufteilung der Zeitreihe. Experiment 1 nutzt den ersten Zeitraum, Experiment 2 umfasst die Evaluation von zwei Jahren (2a und 2b). Experiment 3 verwendet den dritten Zeitraum und wird nur für eine Teilmenge der Wertpapiere durchgeführt, die im ersten Quartal 2020 starke Einbrüche erlitten haben. Experiment 4 untersucht den Effekt von Designänderungen auf die Performance, indem mit den erweiterten Agenten ebenfalls Experiment 1-3 durchgeführt werden.}
+\label{fig:timesplit}
+\end{figure}
+
+Für optimale Ergebnisse muss der Trainingshorizont zum einen lang genug sein, damit der Kursverlauf genügend Muster enthält. Zum anderen sollten historische Werte vergleichbar sein und inbesondere keine erheblichen Marktumstellungen aufweisen, welche die Mustererkennung erschweren.
+Ähnlich zu anderen Evaluationen~\parencite{théate2020application,zhang2019deep} wird daher einen Zeitraum von elf Jahren gewählt.
+\parencite{lautenschlager} beschreibt detailliert, wie die Aufteilungen in Trainings-, Validations- und Testdatensatz im Experiment verwendet werden. 
+Mit unterschiedlichen Hyperparametermengen wird auf dem Trainingssatz trainiert und auf dem Validationssatz ausgewertet. Das am besten abschneidende Modell wird daraufhin neu auf dem Trainings- und Validationssatz trainiert und auf dem Testsatz getestet. Es gilt zu beachten, dass die Gewichte $\theta$ während des Testens nicht verändert werden. Dieser Vorgang wird für drei Zeiträume und drei Durchgänge mit neuen Gewichten sowie initialen Portfolioeinstellungen nach jeder Trainingsiteration wiederholt. 
+Um gleiche Testbedingungen zu gewährleisten, wird der Testsatz auf 251 Tage beschränkt, an denen der Agent Aktionen ausführen kann.
+
+\subsection{Experiment 1: Vorstudie}
+\label{subsec:voranalyse}
+Da die durchschnittliche Trainingszeit jedes Agenten pro Aktie inklusive des Hyperparametertunings ca. $34,2$ CPU-Kern-Stunden beträgt, werden aus Ressourcengründen neun sehr unterschiedliche Wertpapiere für die Voranalyse ausgewählt. Die Wertpapiere sind in Tabelle \hyperref[tabe2]{A2} im Anhang gekennzeichnet.
+Dieser Datensatz wird dazu verwendet, um in einem initialen Testdurchlauf die vielversprechendsten vier Agenten zu bestimmen. 
+Dafür wird das Evaluationssetting der Agenten angeglichen und die Testumgebung nur um den Datensatz sowie einheitliche Marktbedingungen (vgl. \ref{sec:marktbedingungen}) erweitert. Für drei Durchläufe der ersten beiden Zeithorizonte aus Grafik \ref{fig:timesplit} wird der Mittelwert des Profits gebildet, der die Performance des Agenten abbildet und die Agenten einstuft. 
+Außerdem dient der Datensatz dazu, einige Hyperparameterkombinationen zu testen. Indem Hyperparameter ohne beobachtbare Einflüsse aus dem Suchraum ausgeklammert werden, wird die Anzahl der Dimensionen reduziert, ohne die Hyperparameteroptimierung stark zu beeinträchtigt. Das ermöglicht, die Performance der Agenten in den nachstehenden Experimenten mit mehr Wertpapieren zu untersuchen.
+
+\subsection{Experiment 2: Hauptevaluation}
+\label{subsec:experiment12}
+
+Der Datensatz für die Hauptevaluation enthält 43 Aktien, 11 \acs{ETF}s und 16 Warentermingeschäfte aus dem NYSE, NASDAQ und SEHK\footnote{New York Stock Exchange, National Association of Securities Dealers Automated Quotations bzw. Stock Exchange of Hong Kong}. Die Auswahl kombiniert und erweitert die Zeitreihen einiger größerer Studien \parencites{théate2020application,zhang2019deep,duel}.
+Schwerpunktmäßig wird der amerikanische Markt (NYSE, NASDAQ) untersucht, da diese Daten in der bestehenden Literatur am häufigsten analysiert werden \parencite{metausa}.
+Aktien aus dem SEHK dienen zum Vergleich von Märkten; unterschiedliche Klassen an Wertpapieren bilden verschiedene Charakteristika im Kursverlauf ab.
+
+Tabelle \hyperref[tabe2]{A2} kategorisiert alle gehandelten Wertpapiere hinsichtlich einiger charakteristischen Merkmale.
+In Bezug auf qualitative Merkmale beschränkt sich die Performancestudie auf Branchenzugehörigkeit, Unternehmensgröße, Börse und Region der Unternehmenszentrale.
+Als quantitative Eigenschaften werden technische Charakteristika im Kursverlauf betrachtet. Zum einen wird die Risikogewichtung einer Aktie über die Standardabweichung der Zeitreihe und den Beta-Faktor\footnote{Der Beta-Faktor ist als $\frac{Kovarianz(r_a,r_m)}{Varianz(r_m)}$ definiert, wobei $r_m$ die Markrendite und $r_a$ die Rendite des Wertpapiers angeben. Berechnet wird der Beta-Faktor der letzten 10 Jahre.} bestimmt. Der Beta-Faktor zeigt die Beziehung eines Wertpapiers mit dem Finanzmarkt und weist eine positive Korrelation mit dem Gewinn eines Wertpapiers auf \parencite{beta}. Zum anderen sind stark steigende und fallende Wertpapiere gruppiert, um den Effekt positiver bzw. negativer Trends auf die Performance zu untersuchen.
+
+\subsection{Experiment 3: Krisenevaluation}
+\label{subsec:experiment3}
+
+Für die Evaluation von Krisenzeiten wird eine Untermenge (siehe Tabelle \hyperref[tabe2]{A2}) aus zehn Wertpapieren verwendet, die besonders starke Einbrüche im Kursverlauf aufgrund der COVID-19 Krise aufweisen. Die Auswahl basiert auf den Metriken der Studie von Chowdhury et al. \parencite{coronawhichbad}, in der die Auswirkungen von COVID-19 auf den globalen Aktienmarkt erforscht werden.
+Die Pandemie sorgte im ersten Quartal 2020 für starke Einbrüche in der Weltwirtschaft \parencite{covid19}, welche einige Herausforderungen für den algorithmischen Handel darstellen.
+Vorwiegend weisen die Zeitreihen abrupte Schwankungen mit einer negativen Abweichung vom Mittelwert auf.
+Untersucht wird, wie gut der Agent seine Strategie an die hohe Volatilität neu anpassen kann.
+
+\subsection{Experiment 4: Erweiterte Architektur}
+\label{subsec:experiment4}
+
+Das Experiment erweitert den Datensatz aus Experiment 1-3 um weitere Finanzdaten, die einigen Agenten als ergänzende Marktinformationen übergeben werden.
+Die Auswahl der Wertpapiere basiert auf mathematisch nachgewiesenen Korrelationen: Einige Studien zeigen nicht-lineare Wechselwirkungen des Öl- bzw. Goldkurses \parencite{stockoil,seigel2020stocks,spillover} und Zinsschwankungen \parencites{interest} mit mehreren Aktien oder \acs{ETF}s. 
+Bessere Aktienvorhersagen konnten darüber hinaus bereits bei Simulationen \parencite{vix} erzielt werden, indem der Volatilitätsindex (\acs{^VIX}) des US-amerikanischen Aktienmarkts in Modelle inkludiert wurde. Ein hoher \acs{^VIX} weist auf eine unsichere Marktlage hin und korreliert meist negativ mit Aktienindices.
+Zusätzlich sind die Zeitreihe eines weiteren Vertreters der Branche und ein Aktienindex derselben Börse im Datensatz enthalten, die ebenfalls Wechselwirkungen mit dem gehandelten Wertpapier aufweisen \parencites{clusterbranche,corrindex}.
+Die ausgewählten Kontextdaten sind in Tabelle \hyperref[tabe2]{A2} aufgeführt. Eine genaue Untersuchung, welche Wertpapiere ausnutzbare Korrelationen in Bezug auf \acs{NN}e aufweisen, stellt ein spannendes Forschungsfeld für weitere Arbeiten dar.
+
+In der Evaluation werden ebenfalls die Zeiträume von Experiment 1-3 ausgewertet, wobei dasselbe, oben beschriebenen Setting inklusive einer identisch ausgeführten Hyperparametersuche verwendet wird.
+Indem die Agenten analogen Restriktionen unterliegen, können damit Effekte einzelner Designerweiterungen bei unterschiedlichen Marktsituationen isoliert untersucht werden.
+
+\section{Architektur und Training}
+
+Die zwei untersuchten Projektarchive \parencite{repo1,repo2} enthalten insgesamt siebzehn \acs{DRL} Varianten, deren Aktionsräume (siehe Abschnitt \ref{par:action}) und Konfigurationen für alle Experimente vereinheitlicht werden. Eine vollständige Liste der Agenten befindet sich in Tabelle \hyperref[tabe1]{A1} im Anhang.
+Die Agenten werden um das folgende Setup erweitert bzw. modifiziert:
+
+Ein vorwärtsgerichtetes Netzwerk, bestehend aus einer verdeckten Schicht mit der ReLU Aktivierungsfunktion\footnote{Der Rectifier ist der Positivteil eines Arguments, $f(x)\coloneqq max(0,x)$.}, wird mit einem Adam Optimierer verwendet, um den \acs{DQL} Entscheidungsprozess aus Abschnitt \ref{sec:grundlagendql} für alle Agenten zu lösen.
+Für eine bessere Vergleichbarkeit werden die Agenten in einigen Aspekten weiter vereinheitlicht:
+Epsilon decay wird mit der Exponentialfunktion skaliert $exp(-$epsilon decay$*$i), wobei i die i-te Iteration angibt. Durch die negativ exponentielle Skalierung kann der Trainingsprozess besser konvergieren und flexibler von Exploration zu Exploitation übergehen \parencite{zamora2017extending}.
+Das Training stoppt nach 1000 Epochen oder, falls keine Verbesserung nach fünfzehn Epochen erzielt wird. Diese Anpassung wird als early stopping bezeichnet und reduziert die Gefahr von Überanpassung. Als Grundlage der Implementierung dient \parencite{earlystopping}.
+Der Agent nutzt einen Wiedergabespeicher mit einer fixen Größe, die als Speichergröße $m$ in Algorithmus \ref{dql} definiert ist.
+Zur besseren Verwaltung und Verringerung der Komplexität werden die \acs{DRL} Varianten in eine Vererbungsstruktur eingegliedert.
+
+\subsection{Agenten ohne Kontextdaten}
+
+In der Voranalyse schneiden vier verschiedene \acs{DQL} Ansätze bei neun Wertpapieren mit sehr unterschiedlichen Charakteristika am besten ab. 
+Die in Experiment 2-3 (cf. Paragraph \ref{subsec:experiment12} bzw. \ref{subsec:experiment3}) näher analysierten \acs{DRL} Varianten sind:
+\paragraph{Deep q learning Agent (\acs{DQLA}).} Der Agent besteht aus einem vorwärtsgerichteten Netzwerk, enthält als Eingabe die letzten 30 täglichen Schlusskurse des Wertpapiers und kann pro Tag eine Aktion aus dem in Paragraph \ref{par:zustand} definierten Aktionsraum ausführen. Die Belohnung wird aus der Differenz des aktuellen und des vorherigen Wertpapierkurses berechnet. Die weiteren Varianten verändern den \acs{DQLA} in den nachstehenden Aspekten.
+\paragraph{Duel deep recurrent q learning Agent (\acs{DDRQLA}).} Klassische \acs{LSTM} Zellen \parencite{hochre}, die als Eingabe- bzw. Ausgabe-Aktivierungsfunktion den tanh()\footnote{Der Tangens Hyperbolicus ist als $tanh(x)\coloneqq\frac{sinh(x)}{cosh(x)}=\frac{exp(x)-exp(-x)}{exp(x)+exp(-x)}$ definiert.} und als rekurrente Aktivierungsfunktion die Sigmoid-Funktion\footnote{Die Sigmoid-Funktion ist als $sig(x)\coloneqq\frac{1}{1+exp(-x)}$ definiert.} nutzen, werden anstelle gewöhnlicher Neuronen in der verdeckten Schicht eingesetzt.
+Wie in Paragraph \ref{subsec:duel} beschrieben, wird das \acs{RNN} zusätzlich für eine Dueling Strategie zur Berechnung des Zustandeswertes und Aktionsvorteils aufgespalten.
+\paragraph{Deep deterministic policy gradient Agent (\acs{DDPGA}).} Das Modell enthält vier vorwärtsgerichtete \acs{NN}e, wobei die $Q$-Funktion synchron trainiert wird. An die beiden Kritiker-Netzwerke werden weiterhin eine verdeckte Schicht mit einem Ausgabeskalar angehängt, der den Kritikerwert repräsentiert.
+
+Als Baseline dienen zwei technische Indikatoren, die in der Praxis häufig zum Einsatz kommen \parencite{WU2020142,théate2020application}. Der erste Agent (\acs{MA}) trifft seine Handlungsentscheidung entsprechend dem gleitenden 30 Tage Durchschnitt (vgl. moving average \parencite{movingaverage}). Der zweite Agent (\acs{TT}) kauft ein Wertpapier, sobald der Kurs unter das globale Minimum fällt und umgekehrt (vgl. turtle trading \parencite{turtle}). Begründet ist diese Auswahl dadurch, dass die beiden Indikatoren entgegengesetzte Positionen einnehmen (vgl. \parencite{théate2020application}). \acs{MA} folgt dem Trend, während \acs{TT} gegensätzlich zum Kursverlauf handelt.
+Somit können unterschiedliche Kursverläufe vielseitiger technisch vorhergesagt werden.
+
+\subsection{Agenten mit Kontextdaten}
+\label{sec:erweiterung}
+
+Um den Einfluss von zusätzlichen Finanzinformationen und anderer Modifikationen auf verschiedene \acs{DRL} Algorithmen zu testen, werden die folgenden Agenten in das entwickelte Evaluationssetup eingefügt und mit Experiment 4 (cf. Paragraph \ref{subsec:experiment4}) ausgewertet:
+
+\paragraph{Deep deterministic policy gradient Agent mit Kontextdaten (\acs{DDPGAK}).} Die Architektur des Agenten ist wie beim \acs{DDPGA} aufgebaut, allerdings umfasst die Eingabe zusätzlich korrelierende Finanzmarktdaten (siehe Abschnitt \ref{subsec:experiment4}). Anstatt dass die Eingabeschicht die letzten 30 Schlusskurse des Wertpapiers erhält, verarbeitet das \acs{NN} noch weitere 150 Eingabewerte (die letzten 30 Werte von fünf korrelierenden Zeitreihen). Der Agent wird bereits in \parencite{paperrepo2} in einem anderen Kontext näher untersucht, nutzt eine Vorimplementierung des Moduls OpenAI-Baselines und wird um den Aktionsraum und die Belohnungsfunktion aus Abschnitt \ref{sec:formalisierung} modifiziert.
+
+\paragraph{Erweiterter deep q learning Agent (\acs{EDQLA}).}
+Um den Einfluss von Kontextdaten, geringeren Handelsbeschränkungen und Dropout auf die Performance für den \acs{DQL} Lernalgorithmus zu konstantieren, wird im nächsten Schritt das Design des \acs{DQLA} in drei Aspekten angepasst.
+Dadurch können insbesondere Schlussfolgerungen über den Nutzen eines erweiterten Zustandsraums für einen weiteren \acs{DRL} Algorithmus getroffen werden.
+Dabei wird einerseits untersucht, wie sich das Hinzufügen von Kontextdaten im Speziellen auf die Entscheidungsfindung des \acs{DQL} Algorithmus auswirkt.
+Andererseits wird die Architektur des Agenten in Anlehnung an state-of-the-art Ansätze \parencite{improvementaction,théate2020application,direct} zusätzlich erweitert, um zu testen, inwiefern mit weiteren Änderungen für den \acs{DQL} Ansatz bessere Ergebnisse sowohl in den Jahren 2018 und 2019, als auch im Krisenjahr erzielt werden können.
+Die modifizierten Aspekte sind:
+
+\begin{enumerate}[(i)]
+\item{\textit{Erweiterung des Zustandsraums:}}
+Ein größerer Zustandsraum (siehe Paragraph \ref{par:zustand}) wird dazu verwendet, dem Agenten die Kontextdaten aus Abschnitt \ref{sec:datensatz} als zusätzliche Eingabewerte zu übergeben. 
+Damit sollen Korrelationen im Finanzmarkt ähnlich wie beim \acs{DDPGAK} gewinnbringend ausgenutzt werden.
+Die Eingabeschicht wird dabei ebenfalls von 30 auf 180 erhöht, sodass der Wertpapierkurs und die korrelierenden Zeitreihen der letzten 30 Tage für jeden Zeitschritt übergeben werden.
+\item{\textit{Implementierung von Dropout:}}
+Zur Verringerung der Überanpassung wird die Regularisierungsmethode Dropout verwendet, die in \parencite{hinton2012improving} spezifiziert wird.
+Diese Implementierung wird bereits von anderen Studien \parencite{WU2020142,dropout2} im algorithmischen Handel zur Verbesserung der Modelle eingesetzt und wird für den \acs{EDQLA} übernommen.
+Zusammengefasst werden aus der verdeckten Schicht des \acs{NN}es zufällig einzelne Neuronen für die Dauer des Trainings entfernt. Das bedeutet, dass deren Beiträge zur Aktivierung der Ausgabeschicht zeitweise ignoriert und deren Gewichte währenddessen nicht angepasst werden. Die Wahrscheinlichkeit, mit der einzelne Neuronen aus dem Modell entfernt werden, wird als Dropoutrate referenziert und zusätzlich bei der Hyperparametersuche optimiert.
+Effektiv werden gewisse Gewichte auf null gesetzt, während die restlichen Gewichte mit $\frac{1}{1-\textnormal{Dropoutrate}}$ so skaliert werden, dass die Summe über alle Eingaben gleich bleibt.
+\item{\textit{Erweiterung des Aktionsraums:}}
+Ein größerer Aktionsraum (siehe Paragraph \ref{par:action}) eröffnet dem Agenten mehr Handlungsmöglichkeiten, wenngleich daraus ein höheres Risiko und höhere Transaktionskosten resultieren.
+In diesem Evaluationssetting ist die Erweiterung dadurch motiviert, dass der Agent in den Experimenten in Kapitel \ref{ch:evaluationsaufbau} nur einen kleinen Teil seines Bargeldes nutzen kann.
+Viele Portfolioallokationen können dadurch nicht angenommen werden, was eine deutliche Einschränkung im Training und Testen der Agenten darstellt.
+Krisenzeiten verdeutlichen, dass der Agent nicht schnell genug auf Kurseinbrüche reagiert, da er die Wertpapieranzahl nur langsam reduzieren kann.
+Insofern wird mit dem \acs{NN} nicht die optimale Handelsentscheidung zu jedem Zeitschritt vorhergesagt. Stattdessen muss der Agent aufgrund starker Handelseinschränkungen beispielsweise frühzeitig Wertpapiere abstoßen, um hohe Verluste zu vermeiden. Die resultierenden Handlungen sind daher nicht optimal.
+Aus diesem Grund wird, ähnlich zu anderen Veröffentlichungen \parencite{théate2020application,improvementaction,direct}, ein stetiger Aktionsraum mit einer oberen und unteren Grenze implementiert.
+Konkret orientiert sich die Implementierung an der Architektur in \parencite{improvementaction}: 
+Die Ausgabeschicht besitzt weiterhin drei Neuronen (kaufen, halten, verkaufen).
+Anstatt einer linearen Aktivierungsfunktion nutzt der \acs{EDQLA} in der Ausgabeschicht die Softmax-Funktion (Gl. \ref{softmax}) mit einem Skalar. Der Vorteil ist, dass die Werte damit an eine normalisierte Wahrscheinlichkeitsverteilung angepasst werden.
+Die Zahl $R_{num}$ der gehandelten Wertpapiere ist gegeben durch Gleichung \ref{numberstocks}, wobei z den Eingabevektor mit Verzerrungswerten und Gewichten angibt:
+\begin{align}
+	\sigma(z)&:\mathbb{R}^n\longmapsto\{x\in\mathbb{R}^n\mid \Vert x\Vert _1=1,~x_i>0\} \\
+	\sigma(z)_i&\coloneqq\frac{exp(z_i)}{\sum_{j=1}^n exp(z_j)} \textnormal{, für }1\leq i\leq n \label{softmax}\\
+	R_{num}&=int(\max_i \sigma(z)_i)*L\label{numberstocks}
+\end{align}
+Der Parameter n steht für die Anzahl der Neuronen in der Ausgabeschicht und
+die Variable L definiert die maximale Kauf- bzw. Verkaufsmenge. Analog zu \parencite{improvementaction} wird L=10 gewählt.
+\end{enumerate}
+
+\section{Hyperparametersuche}
+\label{sec:hyperparameter}
+
+Das inititale Testsetting der Agenten aus den beiden Verzeichnissen (cf. \parencite{repo1,repo2}) enthält keine umfassende Hyperparameteroptimierung und die Suchräume weichen teilweise voneinander ab.
+Da unterschiedliche Varianten bzw. Implementierungen verschiedene Hyperparameter verwenden und Vergleiche ansonsten verzerrt werden, wird die Anzahl der Parameter für alle Varianten nicht gleich gehalten.
+Außerdem nutzen bestimmte Lernalgorithmen ihre Hyperparameter unterschiedlich, weshalb für eine gleichwertige Konfiguration die Einstellungen individuell optimiert werden.
+Für jeden Hyperparameter werden zwei Werte getestet. Größere Wertebereiche würden die Agenten noch weiter verbessern. Allerdings impliziert dies eine höhere Laufzeit, was aus Ressourcengründen vermieden wird.
+
+In der Voranalyse (siehe Paragraph \ref{subsec:voranalyse}) werden die Lernrate aus Gleichung \ref{gradientenverfahren} und, bei den \cas{DDPG} Agenten, die Lernrate des Kritikers fest eingestellt.
+Für jeden Agenten werden drei Lernraten ($\sim\{0.01, 0.005,0.001\}$) evaluiert. In über $70\%$ der Fälle erzielte jeweils eine bestimmte Lernrate die besten Ergebnisse. Deshalb wird dieser Parameter bei der Rastersuche ausgeklammert und für jeden Agenten vorher individuell eingestellt.
+
+Wenngleich es Methoden zur genaueren Suche guter Hyperparameter gibt~\parencite{lautenschlager}, bietet eine Rastersuche einige Vorteile für das Evaluationssetting: Sie ist einfach zu implementieren, deckt den Suchraum gut ab und ermöglicht auf effiziente Weise eine erste Einschätzung der optimalen Kombination.
+In allen Experimenten werden die nachstehenden Hyperparameter in einer Rastersuche individuell für jede Komposition aus Wertpapier, Agent und Durchlauf eingestellt.
+Insgesamt werden $1800$ Rastersuchen durchgeführt ($450$ für jeden der vier Agenten), wobei sich die Bezeichnungen an Kapitel \ref{ch:grundlagen} orientieren:
+\begin{itemize}
+\item Gamma $\sim\{0.9,0.999\}$:
+Eine langfristige Strategie ($y\to1$) hat zur Folge, dass die Handelsfrequenz des Agenten aufgrund geringerer Transaktionskosten sinkt. 
+Im Gegensatz dazu hat $y\to0$ den Vorteil, dass unsichere, zukünftige Ereignisse weniger stark ins Gewicht fallen.
+\item Schichtgröße $\sim\{2^8,2^9\}$:
+Die Schichtgröße definiert die Anzahl der Neuronen bzw. der \acs{LSTM} Zellen in der versteckten Schicht. Mehr Neuronen in einer Schicht sorgen für ein komplexeres Modell.
+\item Epsilon decay $\sim\{10^{-2},10^{-3}\}$ bzw. epsilon $\sim\{0.5, 0.8\}$:
+Eine greedy Methode ($\epsilon\to0$) kann zu geringer Exploration und Konvergenz in ein schwaches lokales Minimum führen, wohingegen rein zufällige Strategien ($\epsilon\to1$) divergieren. Die Agenten aus \parencite{repo1} verwenden epsilon decay, während der \acs{DDPGAK} ein konstantes $\epsilon$ einsetzt. \acs{DDPGAK} enthält das Modul OpenAI-Baselines, dessen \acs{DDPG} Algorithmus nur ein konstantes $\epsilon$ benutzt.
+\item Speichergröße $\sim\{251,753\}$:
+Mögliche Speichergrößen sind ein Jahr (251 Tage) und drei Jahre (753 Tage).
+Für den algorithmischen Handel bietet eine optimale Einstellung für das Lernen mit einem Wiedergabespeicher, neben der Vermeidung von Überanpassung, einige Vorteile:
+Die Wahrscheinlichkeitsverteilung $\rho$ wird zufällig gemittelt. Dadurch wird der Lernprozess über viele vorangegangene Sequenzen geglättet und die Varianz der Anpassungen sinkt, wodurch Ausreißer in volatilen Finanzdaten besser ausgeglichen werden. Weiterhin werden manche Zeitschritte mehrmals zur Aktualisierung der Gewichte verwendet, was zu einer besseren Datennutzung beiträgt (vgl. \parencite{antari}).
+\end{itemize}
+
+Im Falle von \acs{DDPGAK} werden zwei weitere Hyperparameter berücksichtigt, die bei den anderen Agenten nicht eingesetzt werden. Der erste ist die Batchgröße ($\sim\{2^7,2^8\}$), welche die Anzahl der Zeitschritte angibt, die für jede Trainingsiteration verwendet werden. Die Batchgröße hat einen wichtigen Einfluss auf die Konvergenz des Trainings und auf die resultierende Performance des Modells. Alle anderen Agenten aktualisieren ihre Gewichte nach jedem Zeitschritt, weshalb sie eine eine fixe Batchgröße von eins besitzen.
+Die zweite Variable ist der Parameter $\tau\sim\{10^{-2},10^{-3}\}$ aus Paragraph \ref{subsec:ddpg}. Indem die Kopien des Akteurs und des Kritikers zeitverzögert angepasst werden, stabilisiert eine optimale Wahl von $\tau$ den Lernprozess.
+Da der erweiterte \acs{EDQLA} zur Regularisierung Dropout verwendet, optimiert die automatische Hyperparametersuche zusätzlich für diesen Agenten noch die Dropoutrate ($\sim\{0.5,0.8\}$) für jedes Wertpapier individuell.
+
+\section{Marktbedingungen}
+\label{sec:marktbedingungen}
+
+Die in dieser Arbeit entwickelte Testumgebung trifft einige Annahmen über die Finanzumgebung, welche den Entscheidungsprozess des Agenten einfach und gleichzeitig wirklichkeitsnah machen. 
+Zum einen enthält diese Testumgebung, wie in \parencite{théate2020application,moodysaffell,zhang2019deep}, Transaktionskosten in Höhe von $1\%$ der Kosten des Wertpapiers. Auswirkungen unterschiedlicher Transaktionskosten werden unter anderem in \parencites{théate2020application,moodysaffell} ausgeführt.
+Ähnlich zu den Vertragskonditionen führender Investmentbanken sind Depotkosten, Mindestordergebühren oder Vergünstigungen bei häufigen Handlungen nicht im Modell enthalten.
+Zum anderen ist das Handelsvolumen unbeschränkt und der Agent nimmt durch seine Entscheidungen keinen Einfluss auf den Marktpreis.
+Zur besseren Vergleichbarkeit verwenden sowohl die Voranalyse als auch die drei nachfolgenden Experimente dieselben Marktbedingungen.
+ 
+\section{Metrik}
+\label{sec:metrik}
+
+Die untersuchten, qualitativen Metriken jedes Experiments sind:
+\begin{itemize}
+\item Profit: Hauptsächlich wird die Performance der Agenten über den Profit $R_T=\sum_{t=0}^Tr_t$ analysiert, wobei $r_t$ die Rendite zum Zeitpunkt t darstellt.
+Die Rendite ist dabei die Änderung des Portfoliowerts, der in Paragraph \ref{par:belohnung} definiert ist. 
+\item Volatilität: Die durchschnittliche Volatilität wird in Form der Standardabweichung der Portfolioentwicklung gemessen und zeigt das Risiko an, dem das Portfolio ausgesetzt ist.  
+\item Ausreißer: Zur besseren Risikobetrachtung wird ebenfalls der größte Verlust des Agenten an einem Tag betrachtet.
+\item Sharpe Ratio: Das Sharpe Ratio \parencite{moodysaffell} liefert eine risikobereinigte Rendite. Es berechnet sich aus $S_T=\frac{Durchschnitt(R_t)}{Standardabweichung(R_t)}$.
+Identisch zur bestehenden Literatur \parencites{zhang2019deep,théate2020application,deepQtrader} wird den Agenten eine risikoneutrale Nutzenfunktion unterstellt. Das Sharpe Ratio wird verwendet, da sich damit auch risikoaverse Präferenzen darstellen lassen. Zukünftige Untersuchungen könnten auch noch Modelle miteinbeziehen, mit denen weitere Risikopräferenzen der Investoren abgebildet werden können. Um die Testumgebung so einfach wie möglich und Vergleiche mit anderen Studien fair zu gestalten, beschränkt sich dieses Setting allerdings auf eine risikoneutrale Nutzenfunktion.
+\end{itemize}
+
+Zum Vergleich der einzelnen Sektoren und Agenten in den ersten beiden Experimenten dienen Mittelwerte der vorgestellten Metriken. 
+Ferner zeigen grafische Darstellungen die Handlungsentscheidungen des Agenten im Einzelnen, sodass die Vorhersagefähigkeit speziell bei deutlichen Kursänderungen, wie beispielsweise ausgelöst durch die COVID-19 Pandemie in Experiment 3, auch qualitativ untersucht werden kann. Indem die Aktionen gemeinsam mit dem Portfoliowert und dem Wertpapierpreis veranschaulicht werden, lassen sich die Stärken und Schwächen zusätzlich differenzierter herausarbeiten.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

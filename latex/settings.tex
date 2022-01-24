@@ -1,0 +1,171 @@
+\PassOptionsToPackage{table,svgnames,dvipsnames}{xcolor}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[sc]{mathpazo}
+\usepackage{lmodern}
+\usepackage[ngerman]{babel}
+\usepackage[autostyle]{csquotes}
+\usepackage{multirow}
+\usepackage[acronym,nomain,printonlyused, withpage]{glossaries}
+\usepackage{setspace}
+\usepackage{mathtools}
+\usepackage{enumerate}
+\RedeclareSectionCommand[beforeskip=0.7pt,
+afterskip=1.1cm]{chapter}
+\usepackage[hidelinks]{hyperref}
+
+\newcounter{para}
+\newcommand\mypara{\par\refstepcounter{para}\thepara\space}
+
+\setcounter{table}{0}
+\renewcommand{\thetable}{A\arabic{table}}
+
+\usepackage{parskip}
+\usepackage[font=scriptsize]{caption}
+\RedeclareSectionCommand[
+  beforeskip=.0\baselineskip,
+  afterskip=-1em]{paragraph}
+
+\usepackage[printonlyused, withpage]{acronym}
+\usepackage{amsmath}
+\usepackage[
+  backend=biber,
+  url=false,
+  style=numeric,
+  maxnames=4,
+  minnames=3,
+  maxbibnames=99,
+  giveninits,
+  uniquename=init]{biblatex}
+\addbibresource{bibliography.bib}
+\usepackage{graphicx}
+\usepackage{scrhack} % necessary for listings package
+\usepackage{listings}
+\usepackage{lstautogobble}
+\usepackage{booktabs} %Tabellen
+\usepackage[final]{microtype} %verbessert Darstellung
+\usepackage{caption}
+\usepackage[hidelinks]{hyperref} % hidelinks removes colored boxes around references and links
+\usepackage{fancyhdr}
+\setlength{\headheight}{15.2pt}
+\usepackage[justification=RaggedRight, singlelinecheck=false]{caption}
+\usepackage{color}
+\usepackage{tocloft}
+
+\usepackage[hidelinks]{hyperref}
+\renewcommand{\cftchapdotsep}{\cftdotsep} %adding dottet lines to table of contents
+\newcommand{\E}{\mbox{I\negthinspace E}}
+
+
+%Kopf- und Fußzeile
+\pagestyle{headings}
+\fancyhead{} 
+\fancyfoot{}
+\lhead[\leftmark]{}
+\rhead[]{\leftmark}
+\lfoot[\thepage]{}
+\rfoot[]{\thepage}
+%no lines header footer
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+
+\setkomafont{disposition}{\normalfont\bfseries} % use serif font for headings
+\linespread{1.05} % adjust line spread for font
+
+% Add table of contents to PDF bookmarks
+\BeforeTOCHead[toc]{{\cleardoublepage\pdfbookmark[0]{\contentsname}{toc}}}
+\setlength{\cftbeforetoctitleskip}{-1em}
+
+\usepackage{tikz}
+\usetikzlibrary{matrix, arrows.meta}
+\usetikzlibrary{positioning,fit}
+\usepackage{newfloat}
+\DeclareFloatingEnvironment[fileext=dia,within=section]{diagram}
+
+\newcommand{\DrawNeuronalNetwork}[2][]{
+\xdef\Xmax{0}
+\foreach \Schicht/\X/\Col/\Miss/\Lab/\Count/\Content [count=\Y] in {#2}
+{\pgfmathsetmacro{\Xmax}{max(\X,\Xmax)}
+ \xdef\Xmax{\Xmax}
+ \xdef\Ymax{\Y}
+}
+\foreach \Schicht/\X/\Col/\Miss/\Lab/\Count/\Content [count=\Y] in {#2}
+{\node[anchor=south] at ({2*\Y},{\Xmax/2+0.1}) {\Schicht};
+ \foreach \m in {1,...,\X}
+ {
+  \ifnum\m=\Miss
+   \node [neuron missing] (neuron-\Y-\m) at ({2*\Y},{\X/2-\m}) {};
+  \else
+   \node [circle,draw,minimum size=0.8cm] (neuron-\Y-\m) at 
+  ({2*\Y},{\X/2-\m}) {\Content};
+ \ifnum\Y=1
+  \else
+   \pgfmathtruncatemacro{\LastY}{\Y-1}
+   \foreach \Z in {1,...,\LastX}
+   {
+    \ifnum\Z=\LastMiss
+    \else
+     \draw[->] (neuron-\LastY-\Z) -- (neuron-\Y-\m);
+    \fi
+    }
+  \fi
+ \fi
+ \ifnum\Y=1
+  \ifnum\m=\X
+   \draw [overlay] (neuron-\Y-\m) -- (state);
+  \else
+   \ifnum\m=\Miss
+   \else
+    \draw [overlay] (neuron-\Y-\m) -- (state);
+   \fi
+  \fi
+ \else
+ \fi     
+ }
+ \xdef\LastMiss{\Miss}
+ \xdef\LastX{\X}
+}
+}
+
+
+%Code
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+
+
+%Listen
+\usepackage{lineno}
+\modulolinenumbers[5]
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amssymb,amsmath,nccmath}
+\usepackage{cclicenses}
+\usepackage{makecell}
+\usepackage{textcomp}
+\usepackage{amsmath}
+\usepackage{bigdelim} 
+\usepackage{lipsum}
+\usepackage{xcolor}
+
+\usepackage{lscape,array}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}} 
+\usepackage[thin, , thinc]{esdiff}
+\usepackage{subcaption}
+\usepackage{caption}
+\usepackage{framed}  
+\usepackage[font=small,skip=0pt]{caption}
+
+\newcommand{\header}[1] {
+  \footnotesize{\textbf{#1}}}
+\usepackage{geometry}
+\usepackage[showframe=true]{geometry}
+\usepackage{changepage}	
+
+
+
+%not used:
+%\usepackage{pgfplots}
+%\usepackage{pgfplotstable}
