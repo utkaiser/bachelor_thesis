@@ -1,0 +1,13 @@
+# docker image: tensorflow/tensorflow:latest
+
+# Python libraries
+pandas
+matplotlib
+numpy
+yfinance
+scikit-learn == 0.24
+jinja2
+
+# Deep Learning framework
+keras
+tensorflow

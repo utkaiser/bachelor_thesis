@@ -1,0 +1,14 @@
+\chapter*{Abstract}
+\label{abstract}
+
+In den letzten Jahren haben sich verschiedene Varianten von deep reinforcement learning (\acs{DRL}) zum state-of-the-art für das Erlernen von optimalen Strategien im algorithmischen Handel entwickelt.
+Dies hat zu einem großen Interesse im Finanzsektor geführt, die Anwendung und den Nutzen diverser bestehender \acs{DRL} Implementierungen in komplexen und dynamischen Anlagemärkten detailliert zu evaluieren. 
+In dieser Arbeit wird eine groß angelegte Analyse mit fünf \acs{DRL} Varianten in einem realitätsnahen Evaluationssetting auf einem umfassenden Datensatz durchgeführt, um deren Performance in unterschiedlichen Marktsituationen für 70 Wertpapiere ausführlich zu untersuchen.
+Die Hyperparameter für jede Komposition aus \acs{DRL} Variante, Wertpapier und Trainingsdurchlauf werden separat mit einer Rastersuche optimiert und deren Einfluss auf den sequentiellen Entscheidungsprozess analysiert.
+Insgesamt werden die Ergebnisse von 2400 Experimenten ($\approx 82.000$ CPU-Kern-Stunden) zusammengefasst, wodurch neue Erkenntnisse über die Performance von \acs{DRL} Ansätzen im algorithmischen Handel gewonnen werden können.
+Die Ergebnisse zeigen, dass keine der Varianten eine signifikant bessere Performance als der standardmäßige deep q learning (\acs{DQL}) Algorithmus erzielt und charakterisieren die Long Short-Term Memory (\acs{LSTM}) Architektur als wichtige Eigenschaft in volatilen Marktphasen. Erweiterungen der Architektur einiger \acs{DRL} Algorithmen, wie beispielsweise die Verwendung von zusätzlichen Marktinformationen, führen bei den verwendeten Modellen zu keiner signifikant besseren Entscheidungsfindung. 
+Gleichmäßige Zeitreihen erweisen sich als entscheidender Faktor für eine gute Performance und zeigen eine Wechselwirkung mit dem Marktrisiko eines Wertpapiers.
+Weiterhin lassen sich aus den Effekten der studierten Hyperparameter Schlussfolgerungen für deren effiziente Einstellung bei unterschiedlichen Konjunkturphasen ziehen.
+\vspace{0.55cm}
+
+\paragraph{Schlüsselwörter:} Algorithmic Trading $\cdot$ deep reinforcement learning $\cdot$ Evaluation

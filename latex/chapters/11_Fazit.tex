@@ -1,0 +1,50 @@
+\chapter{Fazit}
+\label{ch:fazit}
+
+In dieser Arbeit wurden eine wirklichkeitsnahe Evaluationsumgebung entwickelt, um in einer groß angelegten Studie empirisch verschiedene \acs{DRL} Architekturen und Implementierungen für den algorithmischen Handel differenziert zu analysieren.
+Das vorgestellte Testsetting stellt Standards in der Hyperparametersuche und dem Design der Agenten auf, 
+sodass damit ausführlich Effekte einzelner Wertpapiercharakteristika und Designänderungen bei unterschiedlichen Marktverhältnissen evaluiert werden konnten.
+
+Die Auswertung der Hyperparametereinflüsse ergab keine eindeutige Struktur.
+Jedoch lässt sich aus der Konfiguration der Modelle folgern, dass eine automatische Hyperparametereinstellung für jede Komposition aus Agent, Wertpapier und Zeithorizont ein wichtiger Bestandteil des Trainings darstellt.
+Eine zentrale Erkenntnis dabei ist, dass die Verwendung einer größeren Schichtgröße signifikant positiv mit der Handelsfrequenz korreliert, was zu besseren Ergebnissen in moderaten Aufschwungphasen führte.
+Überraschend erwies sich der Einsatz des Parameters $\tau$ für den \acs{DDPG} Algorithmus als unwichtig in diesem Setting.
+
+Aus den Testergebnissen lässt sich ableiten, dass die tatsächliche Performance der Agenten stark von der Wahl des Wertpapiers und des Testjahres abhängt.
+Insgesamt konnten sich verschiedene Varianten des \acs{DQL} Algorithmus gegenüber anderen \acs{DRL} Ansätzen und zwei Baseline Agenten durchsetzen.
+Keine \acs{DQL} Variante zeigt allerdings eine signifikant bessere Performance gegenüber dem standardmäßigen \acs{DQL} Ansatz. Jedoch weisen in volatilen Phasen Netzwerke mit einer \acs{LSTM} Schicht eine bessere Entscheidungsfindung auf, während in Rezessionen naivere Ansätze besser abschneiden.
+Speziell die Kombination aus einer Dueling Strategie und einer \acs{LSTM} Schicht erzielte sowohl ein besseres Sharpe Ratio als auch einen höheren durchschnittlichen Profit. 
+
+Allgemein stellt sich die Volatilität eines Wertpapiers als entscheidendste Charakteristik heraus, gefolgt vom Beta-Faktor.
+Während eine hohe Volatilität abträglich für eine gute Performance ist, erhöht ein größerer Beta-Faktor signifikant die Varianz des Portfolios.
+Bessere Ergebnisse anderer Wertpapiercluster konnten auf die Wechselwirkung dieser beiden Eigenschaften zurückgeführt werden.
+Modifikationen im Design wie die Eingabe zusätzlicher Marktinformationen, ein erweiterter Aktionsraum oder die Implementierung von Dropout erweitern das Modell, ohne in diesem Setting für den \acs{DDPG} oder \acs{DQL} Algorithmus signifikant die Performance zu verbessern.
+Im Speziellen reduzieren die korrelierenden Eingabewerte die Handelsfrequenz signifikant, was bei volatilen Marktgeschehnissen unterstützend, hingegen bei Aufschwungphasen hinderlich ist.
+Weiterhin wurde gezeigt, dass schwächere Handelsbeschränkungen durch einen größeren Aktionsraum insbesondere aufgrund hoher Transaktionskosten für die simplen Modelle zu erhöhtem Risiko und durchschnittlich mehr Verlusten führten.
+
+Der algorithmische Handel unterliegt einer hohen Irregularität im Vergleich zu anderen Anwendungsfeldern von \acs{NN}en. 
+Dies stellt eine Hürde für Investoren dar, da die tatsächliche Performance der Modelle stark von gewählten Zeiträumen, Wertpapieren und Konfigurationen abhängt.
+Mit dieser Studie wurde versucht, einige Vermutungen bzgl. Hyperparametern, Wertpapierclustern und Modifikationen empirisch für simple \acs{DRL} Varianten zu untersuchen.
+In weiteren Studien könnten komplexere \acs{DRL} Architekturen analysiert werden, um noch detaillierter die Wechselwirkungen von Wertpapiercharakteristika und den sequentiellen Entscheidungsprozess des algorithmischen Handels zu erkunden.
+Beispielsweise könnte der Effekt von Kontextdaten auf ein aufwendigeres Modell mit einem komplexeren \acs{NN} isoliert erforscht werden.
+Insbesondere könnten möglicherweise andere \acs{DRL} Varianten oder tiefere Netzwerke besser in der Lage sein, die multidimensionalen Muster der korrelierenden Marktinformationen zu erkennen. Es steht noch aus, Effekte von weiteren Kontextdaten wie z.B. Sentimentdaten oder fiskalpolitischen Maßnahmen experimentell zu überprüfen.
+Dank der entwickelten Testumgebung lassen sich diese Modifikationen vielseitig evaluieren, sodass weitere Intuitionen mit umfassenden experimentellen Ergebnissen wissenschaftlich gestützt werden können.
+
+Während die realitätsnahe Testumgebung eine differenziertere Evaluation als zuvor beschriebene Studien ermöglicht, kann sowohl der Datensatz als auch die Konfiguration der Modelle noch umfassender verfeinert und erweitert werden.
+Erstens gibt es eine endlose Anzahl an Charakteristika, die man zusätzlich in die Testumgebung inkludieren könnte. Abgesehen von den untersuchten Wertpapierclustern könnten noch weitere Zusammenhänge mit Eigenschaften wie der Eigenkapitalquote, der Dividendenrendite oder des Streubesitzes zu signifikanten Unterschieden in der Performance führen.
+Zweitens würde ein erschöpfenderes Hyperparametertuning (vgl. \parencites{snoek2012practical,bergstra2012random}) für bessere Ergebnisse und genauere Schlussfolgerungen sorgen. Damit wäre es insbesondere möglich, beispielsweise das fANOVA Framework \parencite{pmlr-v32-hutter14} zu verwenden, um detailliertere Einsicht in die Bedeutung von Hyperparametern und deren Interaktionen zu erhalten.
+Drittens verwendet das einheitliche Framework bereits einige Implementationen, die den Lernprozess stabiler machen und gleichzeitig die Gefahr von Überanpassung reduzieren. Anpassungen in der Risikoadjustierung, etwa durch eine andere Belohnungsfunktion, könnten untersucht werden, um die starken Oszillationen im Training und die Schwankungen in den Ergebnissen zu reduzieren. Weight decay \parencite{ying2019overview} oder spezifischere Regularisierungsverfahren \parencites{zaremba2015recurrent} sind neben Dropout ebenfalls Methoden, mit denen bessere out-of-sample Ergebnisse erzielt werden könnten.
+In weiteren Studien könnte es deshalb von Interesse sein, durch diese Implementierungen homogenere Ergebnisse zu erhalten und für eine bessere Konvergenz im Training zu sorgen. Das benötigt allerdings eine aufwendige, individuelle Anpassung jedes Modells und ist daher nicht im Rahmen dieser Bachelorarbeit enthalten.
+
+
+
+
+
+
+
+
+
+
+
+
+

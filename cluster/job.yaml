@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: single-asset-trading-agent
+spec:
+  template:
+    spec:
+      priorityClassName: research-med
+      containers:
+        - name: single-asset-trading-agent
+          image: x
+          imagePullPolicy: "Always"
+          resources:  # set both limits & requests! (can be equal)
+            limits:  # maximum resources you're allowed to use before kubernetes shuts your pod down
+              cpu: "40"
+              memory: "20Gi"
+            requests:  # resources you request
+              cpu: "1"
+              memory: "1Gi"
+          command: ["python3", "/home/stud/kaiserl/bachelor_thesis/kube_scheduler.py"]
+          volumeMounts:
+            - mountPath: "/home/stud/kaiserl/bachelor_thesis" # directory IN the container
+              name: home # matches volume-name from below
+      securityContext:
+        runAsUser: 1230  # your own userid (4 digit number)
+        fsGroup: 1002  # just copy
+      imagePullSecrets:
+        - name: x
+      restartPolicy: "Never"
+      volumes:
+        - name: home  # mount your home
+          cephfs:
+            monitors:
+              - x
+            user: studkaiserl
+            path: "/home/stud/kaiserl/bachelor_thesis"
+            secretRef:
+              name: ceph-secret
+  # some potentially interesting params (can be left out):
+  backoffLimit: 3  # amount of restarts after failure
+  completions: 1  # amount of completions
+  parallelism: 1  # amount of jobs scheduled in parallel
