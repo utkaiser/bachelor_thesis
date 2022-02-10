@@ -2,7 +2,7 @@
 
 This repository contains the [LaTex source code](latex), the [Python code](code), Docker files, [kubernetes scripts](cluster) and the [dataset](dataset.csv) for my Bachelor 
 Thesis in CS at the University of Wuerzburg, Data Science Lab, supervised by Prof. Hotho: <br>
-"Evaluation and Improvement of Deep Reinforcement Learning Agents for Algorithmic Trading".
+"Evaluation and Improvement of Deep Reinforcement Learning Agents for Algorithmic Trading". 
 
 ### Abstract 
 
