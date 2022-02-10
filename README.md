@@ -4,7 +4,7 @@ This repository contains the [LaTex source code](latex), the [Python code](code)
 Thesis in CS at the University of Wuerzburg, Data Science Lab, supervised by Prof. Hotho: <br>
 "Evaluation and Improvement of Deep Reinforcement Learning Agents for Algorithmic Trading".
 
-### Abstract
+### Abstract 
 
 In recent years, several variants of deep reinforcement learning 
 (DRL) have become state-of-the-art for learning optimal strategies in Algorithmic Trading. 
